@@ -1,0 +1,98 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "eks-soci-builder.fullname" . }}-config
+  labels:
+    {{- include "eks-soci-builder.labels" . | nindent 4 }}
+    {{- if .Values.config.labels }}
+    {{- toYaml .Values.config.labels | nindent 4 }}
+    {{- end }}
+  annotations:
+    {{- include "eks-soci-builder.annotations" . | nindent 4 }}
+    {{- if .Values.config.annotations }}
+    {{- toYaml .Values.config.annotations | nindent 4 }}
+    {{- end }}
+data:
+  buildkitd.toml: |
+    root = "{{ .Values.storage.rootMount }}/buildkit"
+    debug = {{ .Values.config.buildkit.log.debug }}
+    {{ .Values.config.buildkit.additionalConfig }}
+    [log]
+      format = "{{ .Values.config.buildkit.log.format }}"
+    [worker.oci]
+      enabled = false
+    [worker.containerd]
+      enabled = true
+      namespace = "{{ .Values.config.buildkit.namespace }}"
+      gc = {{ .Values.config.buildkit.gc.enabled }}
+      gckeepstorage = "{{ .Values.config.buildkit.gc.keepStorage }}"
+      snapshotter = "soci"
+      {{- range $_, $gc_policy := .Values.config.buildkit.gc.policies }}
+      [[worker.containerd.gcpolicy]]
+      {{- $gc_policy | nindent 6 }}
+      {{- end }}
+  containerd.toml: |
+    root = "{{ .Values.storage.rootMount }}/containerd"
+    state = "/run/containerd"
+    temp = "/tmp"
+    version = 2
+    disabled_plugins = [{{- include "eks-soci-builder.disabledContainerdPlugins" . }}]
+    {{ .Values.config.containerd.additionalConfig }}
+    [proxy_plugins]
+      [proxy_plugins.soci]
+        type = "snapshot"
+        address = "/run/soci-snapshotter-grpc/soci-snapshotter-grpc.sock"
+        [proxy_plugins.soci.exports]
+          root = "{{ .Values.storage.rootMount }}/soci-snapshotter-grpc"
+  soci.toml: |
+    {{ .Values.config.soci.additionalConfig }}
+    [content_store]
+      type = "containerd"
+      namespace = "{{ .Values.config.buildkit.namespace }}"
+  supervisord.conf: |
+    [unix_http_server]
+    file=/run/supervisor.sock
+
+    [supervisord]
+    nodaemon=true
+    logfile=/dev/stdout
+    logfile_maxbytes=0
+    logfile_backups=0
+    loglevel=info
+    user=root
+
+    [rpcinterface:supervisor]
+    supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
+
+    [supervisorctl]
+    serverurl=unix:///run/supervisor.sock
+
+    [program:soci-snapshotter-grpc]
+    command=/usr/local/bin/soci-snapshotter-grpc -log-level {{ .Values.config.soci.log.level }} -root {{ .Values.storage.rootMount }}/soci-snapshotter-grpc -config /etc/soci-snapshotter-grpc/config.toml
+    stdout_logfile=/dev/stdout
+    stdout_logfile_maxbytes=0
+    stderr_logfile=/dev/stderr
+    stderr_logfile_maxbytes=0
+    autorestart=true
+    startretries=5
+    priority=1
+
+    [program:containerd]
+    command=containerd
+    stdout_logfile=/dev/stdout
+    stdout_logfile_maxbytes=0
+    stderr_logfile=/dev/stderr
+    stderr_logfile_maxbytes=0
+    autorestart=true
+    startretries=5
+    priority=100
+
+    [program:buildkitd]
+    command=buildkitd --addr unix:///run/buildkit/buildkitd.sock --addr tcp://0.0.0.0:1234 --tlscacert /certs/ca.crt --tlscert /certs/tls.crt --tlskey /certs/tls.key
+    stdout_logfile=/dev/stdout
+    stdout_logfile_maxbytes=0
+    stderr_logfile=/dev/stderr
+    stderr_logfile_maxbytes=0
+    autorestart=true
+    startretries=5
+    priority=200

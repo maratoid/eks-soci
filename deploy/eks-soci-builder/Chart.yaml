@@ -1,0 +1,16 @@
+apiVersion: v2
+name: eks-soci-builder
+description: Deploy containerd and soci snapshotter worker buildkit builders.
+type: application
+keywords:
+  - buildkit
+  - containerd
+  - soci
+sources:
+  - https://github.com/maratoid/eks-soci
+maintainers: 
+  - name: Marat G
+    email: maratoid@gmail.com
+    url: https://maratg.com
+version: 1.0.0
+appVersion: "0.18.1"

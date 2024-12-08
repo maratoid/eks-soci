@@ -1,0 +1,20 @@
+{{- if .Values.tls.useCertManager }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "eks-soci-builder.fullname" . }}-cert
+  labels:
+    {{- include "eks-soci-builder.labels" . | nindent 4 }}
+  annotations:
+    {{- include "eks-soci-builder.annotations" . | nindent 4 }}
+spec:
+  issuerRef:
+    kind: Issuer
+    name: '{{ include "eks-soci-builder.fullname" . }}-issuer'
+  secretName: {{ .Values.tls.secretName }}
+  dnsNames:
+    - "{{ include "eks-soci-builder.fullname" . }}-service"
+    - "{{ include "eks-soci-builder.fullname" . }}-service.svc"
+    - "{{ include "eks-soci-builder.fullname" . }}-service.svc.{{ .Release.Namespace }}"
+    - "{{ include "eks-soci-builder.fullname" . }}-service.svc.{{ .Release.Namespace }}.cluster.local"
+{{- end }}

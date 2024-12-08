@@ -1,0 +1,132 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "eks-soci-builder.fullname" . }}
+  labels:
+    {{- include "eks-soci-builder.labels" . | nindent 4 }}
+    {{- if .Values.builderSet.labels }}
+    {{- toYaml .Values.builderSet.labels | nindent 4 }}
+    {{- end }}
+  annotations:
+    {{- include "eks-soci-builder.annotations" . | nindent 4 }}
+    {{- if .Values.builderSet.annotations }}
+    {{- toYaml .Values.builderSet.annotations | nindent 4 }}
+    {{- end }}
+spec:
+  podManagementPolicy: Parallel
+  replicas: {{ .Values.builderSet.replicas }}
+  selector:
+    matchLabels:
+      {{- include "eks-soci-builder.selectorLabels" . | nindent 6 }}
+  serviceName: {{ include "eks-soci-builder.fullname" . }}-service
+  template:
+    metadata:
+      labels:
+        {{- include "eks-soci-builder.labels" . | nindent 8 }}
+        {{- if .Values.builderSet.podLabels }}
+        {{- toYaml .Values.builderSet.podLabels | nindent 8 }}
+        {{- end }}
+      annotations:
+        {{- include "eks-soci-builder.annotations" . | nindent 8 }}
+        {{- if .Values.builderSet.podAnnotations }}
+        {{- toYaml .Values.builderSet.podAnnotations | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if .Values.builderSet.affinity }}
+      affinity:
+        {{- toYaml .Values.builderSet.affinity | nindent 8 }}
+      {{- end }}
+      {{- if  .Values.builderSet.nodeSelector }}
+      nodeSelector: 
+        {{- toYaml .Values.builderSet.nodeSelector | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "eks-soci-builder.serviceAccountName" . }}
+      {{- if .Values.builderSet.updateStrategy }}
+      updateStrategy: 
+        {{ toYaml .Values.builderSet.updateStrategy | nindent 8 }}
+      {{- end }}
+      {{- if .Values.builderSet.qemu.install }}
+      initContainers:
+        - args:
+            - --install
+            - all
+          image: "{{ .Values.builderSet.qemu.image.repository }}:{{ .Values.builderSet.qemu.image.tag }}"
+          imagePullPolicy: {{ .Values.builderSet.qemu.image.pullPolicy }}
+          name: qemu
+          securityContext:
+            privileged: true
+            allowPrivilegeEscalation: true
+          {{- if .Values.builderSet.qemu.resources}}
+          resources:
+            {{- toYaml .Values.builderSet.qemu.resources | nindent 12 }}
+          {{- end }}
+          {{- if .Values.builderSet.qemu.additionalMounts }}
+          volumeMounts:
+            {{- toYaml .Values.builderSet.qemu.additionalMounts | nindent 12 }}
+          {{- end }}
+      {{- end }}
+      containers:
+        - name: containerd
+          image: "{{ .Values.builderSet.image.repository }}:{{ .Values.builderSet.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.builderSet.image.pullPolicy }}
+          {{- if .Values.builderSet.readinessProbe }}
+          readinessProbe:
+            {{- toYaml .Values.builderSet.readinessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.builderSet.livenessProbe }}
+          livenessProbe:
+            {{- toYaml .Values.builderSet.livenessProbe | nindent 12 }}
+          {{- end }}
+          securityContext:
+            privileged: true
+            allowPrivilegeEscalation: true
+          {{- if .Values.builderSet.resources }}
+          resources:
+            {{- toYaml .Values.builderSet.resources | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: config
+              readOnly: true
+              mountPath: /etc/buildkit/buildkitd.toml
+              subPath: buildkitd.toml
+            - name: config
+              readOnly: true
+              mountPath: /etc/containerd/config.toml
+              subPath: containerd.toml
+            - name: config
+              readOnly: true
+              mountPath: /etc/supervisor/supervisord.conf
+              subPath: supervisord.conf
+            - name: config
+              readOnly: true
+              mountPath: /etc/soci-snapshotter-grpc/config.toml
+              subPath: soci.toml
+            - name: certs
+              readOnly: true
+              mountPath: /certs
+            - name: "{{ include "eks-soci-builder.fullname" . }}-root"
+              mountPropagation: Bidirectional
+              mountPath: {{ .Values.storage.rootMount }}
+            {{- if .Values.builderSet.additionalMounts }}
+            {{- toYaml .Values.builderSet.additionalMounts | nindent 12 }}
+            {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: "{{ include "eks-soci-builder.fullname" . }}-config"
+        - name: certs
+          secret:
+            secretName: "{{ .Values.tls.secretName }}"
+  volumeClaimTemplates:
+    - metadata:
+        name: "{{ include "eks-soci-builder.fullname" . }}-root"
+      spec:
+        accessModes:
+          {{- toYaml .Values.storage.accessModes | nindent 10 }}
+        storageClassName: "{{ .Values.storage.storageClassName }}"
+        resources:
+          requests:
+            storage: "{{ .Values.storage.storage }}"
+    {{- if .Values.storage.additionalVolumeClaimTemplates }}
+    {{- toYaml .Values.storage.additionalVolumeClaimTemplates | nindent 4 }}
+    {{- end }}

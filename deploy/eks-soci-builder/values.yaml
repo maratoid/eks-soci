@@ -1,0 +1,195 @@
+# -- 'app.kubernetes.io/name' selector name override
+nameOverride: ""
+# -- chart resource name override
+fullnameOverride: ""
+# -- labels applied to all resources
+labels: {}
+# -- annotations applied to all resources
+annotations: {}
+
+# config map values for buildkit, containerd, SOCI and supervisord
+config:
+  # -- labels applied to config map 
+  labels: {}
+  # -- annotations applied to config map
+  annotations: {}
+  buildkit:
+    # -- buildkit containerd namespace 
+    namespace: buildkit
+    # -- buildkit log verbosity and format
+    log:
+      debug: false
+      format: json
+    # -- buildkit garbage collection settings
+    # see: https://docs.docker.com/build/cache/garbage-collection/ 
+    # and https://docs.docker.com/build/buildkit/toml-configuration/
+    gc:
+      enabled: true
+      # -- storage limit for default garbage collection profile
+      keepStorage: "10%"
+      # -- garbage collection policies
+      policies:
+        - |
+          all = false
+          filters = ["type==source.local", "type==exec.cachemount", "type==source.git.checkout"]
+          keepBytes = "10GB"
+          keepDuration = "48h"
+        - |
+          all = false
+          keepDuration = "168h"
+          keepBytes = "10%"
+        - |
+          all = false
+          keepBytes = "10%"
+        - |
+          all = true
+          keepBytes = "10%"
+    # -- any additional TOML tables to prepend to buildkit config
+    additionalConfig: ""
+  # containerd TOML configuration values
+  # see https://github.com/containerd/containerd/blob/main/docs/man/containerd-config.toml.5.md
+  containerd:
+    # -- disabled plugins.
+    # io.containerd.grpc.v1.cri should be disabled for containerd worker as
+    # we are only using containerd for building, and leaving cri enabled seems to mess with garbage collection
+    disabledPlugins: 
+      - io.containerd.grpc.v1.cri
+      - io.containerd.snapshotter.v1.blockfile
+      - io.containerd.snapshotter.v1.btrfs
+      - io.containerd.snapshotter.v1.devmapper
+      - io.containerd.snapshotter.v1.zfs
+      - io.containerd.tracing.processor.v1.otlp
+    # any additional TOML tables to prepend to containerd config
+    additionalConfig: ""
+  # SOCI TOML config.
+  # see: https://github.com/awslabs/soci-snapshotter/blob/main/docs/config.md
+  # this chart always sets [content_store] to containerd
+  # and namespace to .Values.config.buildkit.namespace
+  soci:
+    log:
+      # -- log level
+      level: info
+    # -- any additional TOML tables to prepend to SOCI config
+    additionalConfig: ""
+
+# kubernetes service configuration
+service: 
+  # -- service name override
+  name: ""
+  # -- service labels
+  labels: {}
+  # -- service annotations
+  annotations: {}
+  # -- service type
+  type: "ClusterIP"
+  # -- service IP
+  address: "none"
+  # -- service ports array
+  ports:
+  - port: 1234
+    protocol: TCP
+
+# kubernetes service account configuration
+serviceAccount:
+  # -- create service account
+  create: true
+  # -- service account name override
+  name: ""
+  # -- service account labels
+  labels: {}
+  # -- service account annotations
+  annotations: {}
+
+# storage configuration for builder statefulset persistent volume claim templates
+# see https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#volume-claim-templates
+storage:
+  # -- mount location for shared buildkit/containerd/soci storage
+  rootMount: /builder
+  # -- storage access modes
+  accessModes:
+    - ReadWriteOnce
+  # -- storage class
+  storageClassName: "gp3"
+  # -- storage size
+  storage: "10Gi"
+  # -- any additional volume claim templates for buildkit statefulset
+  additionalVolumeClaimTemplates: []
+
+# buildkit statefulset configuration values
+builderSet:
+  # -- container image information
+  image:
+    repository: ghcr.io/maratoid/containerd-soci-builder
+    # -- if empty, tag will be set to .Chart.appVersion
+    tag: ""
+    pullPolicy: Always
+  # -- pod readiness probe
+  readinessProbe:
+    exec:
+      command:
+        - buildctl
+        - debug
+        - workers
+    initialDelaySeconds: 5
+    periodSeconds: 30
+  # -- pod liveness probe
+  livenessProbe:
+    exec:
+      command:
+        - buildctl
+        - debug
+        - workers
+    initialDelaySeconds: 5
+    periodSeconds: 30
+  # -- labels for statefulset and pod containers
+  labels: {}
+  # -- annotations for statefulset and pod containers
+  annotations: {}
+  # -- labels for pod containers
+  podLabels: {}
+  # -- annotations for pod containers
+  podAnnotations: {}
+  # -- statefulset update strategy
+  updateStrategy: {}
+  # -- number of statefulset replicas
+  replicas: 2
+  # -- pod affinity
+  # see: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
+  # -- pod nodeselector
+  # see: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
+  nodeSelector: {}
+  # -- additional volume mounts for buildkit container
+  additionalMounts: []
+  # -- buildkit container resources
+  #  requests:
+  #    memory: "31G"
+  #    cpu: "2"
+  #  limits:
+  #    memory: "31G"
+  resources: {}
+  # -- cross-platform container building configuration
+  qemu:
+    # -- enable cross-platform container building
+    install: true
+    image:
+      repository: tonistiigi/binfmt
+      tag: "qemu-v8.1.5"
+      pullPolicy: Always
+    # -- qemu container resources
+    #  requests:
+    #    memory: "128Mi"
+    #    cpu: "500m"
+    #  limits:
+    #    memory: "128Mi"
+    resources: {}
+    # -- additional volume mounts for qemu container
+    additionalMounts: []
+
+tls:
+  # -- use CertManager to generate required certificates
+  useCertManager: true
+  # -- if useCertManager=true, name of certmanager-created secret
+  # if useCertManager=false, name of pre-existing tls secret
+  # with ca.crt, tls.crt, tls.key keys
+  secretName: "graft-builder-tls"

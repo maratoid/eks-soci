@@ -1,0 +1,12 @@
+{{- if .Values.tls.useCertManager }}
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ include "eks-soci-builder.fullname" . }}-issuer
+  labels:
+    {{- include "eks-soci-builder.labels" . | nindent 4 }}
+  annotations:
+    {{- include "eks-soci-builder.annotations" . | nindent 4 }}
+spec:
+  selfSigned: {}
+{{- end }}
