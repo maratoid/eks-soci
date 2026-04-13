@@ -4,7 +4,7 @@ import core "cue.dev/x/k8s.io/api/core/v1"
 
 #Values: {
 	baseName:              string | *"buildkit"
-	namespace:             string | *"default" @tag(namespace)
+	namespace:             string | *"buildkit" @tag(namespace)
 	tlsSecret:             string | *"buildkit-tls"
 	replicas:              int & >=0 | *2
 	buildKitPort:          int & >0 & <65535 | *1234
