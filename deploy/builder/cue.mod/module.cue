@@ -1,4 +1,4 @@
-module: "cue.buildkit"
+module: "maratg.com/buildkit"
 language: {
 	version: "v0.16.1"
 }
