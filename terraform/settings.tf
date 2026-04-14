@@ -10,5 +10,5 @@ terraform {
 }
 
 provider "multipass" {
-  command_timeout = 600 
+  command_timeout = 600
 }

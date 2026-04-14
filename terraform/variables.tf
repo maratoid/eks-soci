@@ -25,7 +25,7 @@ variable "cpus" {
 variable "memory" {
   description = "RAM per VM (e.g. '2G', '4G')."
   type        = string
-  default     = "4G"
+  default     = "6G"
 }
 
 variable "disk" {

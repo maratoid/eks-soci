@@ -24,7 +24,7 @@ resource "multipass_instance" "worker_node" {
 }
 
 resource "multipass_alias" "kubectl" {
-  name     = "k3ctl"
+  name     = "k"
   instance = multipass_instance.master_node.name
-  command  = "/usr/local/bin/k3s-kubectl-wrapper"
+  command  = "/usr/local/bin/k"
 }
