@@ -1,4 +1,5 @@
 .DS_Store
+kubeconfig.multipass
 terraform/.terraform
 terraform/terraform.tfstate
 terraform/terraform.tfstate.backup

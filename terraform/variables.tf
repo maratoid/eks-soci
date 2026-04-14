@@ -4,6 +4,18 @@ variable "vm_count" {
   default     = 3
 }
 
+variable "merge_kubeconfigs" {
+  description = "Merge current kube config with newly created k3s one."
+  type        = bool
+  default     = true
+}
+
+variable "merged_cluster_name" {
+  description = "Name for created k3s cluster in the locally merged kube config."
+  type        = string
+  default     = "multipass"
+}
+
 variable "worker_name_prefix" {
   description = "Name prefix for each VM. VMs are named <prefix>-0, <prefix>-1, etc."
   type        = string
