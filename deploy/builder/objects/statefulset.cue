@@ -70,7 +70,7 @@ import apps "cue.dev/x/k8s.io/api/apps/v1"
 						name:      "config"
 						readOnly:  true
 						mountPath: "/etc/containerd/config.toml"
-						subPath:   "containerd-config.toml"
+						subPath:   "containerd.toml"
 					},
 					{
 						name:      "config"

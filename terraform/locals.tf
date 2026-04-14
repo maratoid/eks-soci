@@ -215,6 +215,8 @@ locals {
     runcmd:
       - /usr/local/bin/soci-setup.sh
       - curl -sfL https://get.k3s.io | K3S_TOKEN=${local.k3s_token} sh -s - server --cluster-init --node-label "role=master"
+      - cp /etc/rancher/k3s/k3s.yaml /home/ubuntu/k3s.yaml
+      - chown ubuntu /home/ubuntu/k3s.yaml
   EOT
 
   worker_cloud_init = <<-EOT

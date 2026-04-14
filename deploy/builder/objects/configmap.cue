@@ -77,7 +77,7 @@ import core "cue.dev/x/k8s.io/api/core/v1"
 			root = "/builder/containerd"
 			state = "/run/containerd"
 			temp = "/tmp"
-			version = 2
+			version = 3
 			disabled_plugins = [
 				"io.containerd.grpc.v1.cri",
 				"io.containerd.snapshotter.v1.blockfile",
