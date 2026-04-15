@@ -22,7 +22,7 @@ command: dump: {
 			for r in read {
 				yaml.Unmarshal(r.contents)
 			}
-		} 
+		}
 		text: yaml.MarshalStream((objects.#MakeObjects & {values: _values}).objectsList)
 	}
 }

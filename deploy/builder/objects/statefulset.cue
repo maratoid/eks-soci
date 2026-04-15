@@ -75,6 +75,12 @@ import apps "cue.dev/x/k8s.io/api/apps/v1"
 					{
 						name:      "config"
 						readOnly:  true
+						mountPath: "/etc/soci-snapshotter-grpc/config.toml"
+						subPath:   "soci.toml"
+					},
+					{
+						name:      "config"
+						readOnly:  true
 						mountPath: "/etc/supervisor/supervisord.conf"
 						subPath:   "supervisord.conf"
 					},

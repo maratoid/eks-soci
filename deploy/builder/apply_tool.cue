@@ -23,8 +23,8 @@ command: apply: {
 			for r in read {
 				yaml.Unmarshal(r.contents)
 			}
-		} 
-	
+		}
+
 		text: yaml.MarshalStream([(objects.#MakeObjects & {values: _values}).objects.ns])
 	}
 
@@ -50,9 +50,9 @@ command: apply: {
 				yaml.Unmarshal(r.contents)
 			}
 		}
-	
-		text: yaml.MarshalStream([ 
-			for obj in (objects.#MakeObjects & {values: _values}).objectsList if obj.kind != "Namespace" { obj } 
+
+		text: yaml.MarshalStream([
+			for obj in (objects.#MakeObjects & {values: _values}).objectsList if obj.kind != "Namespace" {obj},
 		])
 	}
 

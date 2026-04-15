@@ -6,4 +6,4 @@ import (
 )
 
 inputValues: val.#Values
-output: (objects.#MakeObjects & {values: inputValues}).objectsList 
+output: (objects.#MakeObjects & {values: inputValues}).objectsList

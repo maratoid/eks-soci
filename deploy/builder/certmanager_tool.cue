@@ -5,7 +5,7 @@ import (
 	"tool/exec"
 )
 
-_certManagerVersion:   string | *"1.20.2"       @tag(version)
+_certManagerVersion: string | *"1.20.2" @tag(version)
 
 command: certmanager: {
 	ask: cli.Ask & {

@@ -10,14 +10,14 @@ if [ "true" == "${3}" ]; then
     replacePattern=": ${4}"
     sed -i "s/: default/$replacePattern/g" ${1}
 
-    # if current config exists, backu and merge, otherwise copy
+    # if current config exists, backup and merge, otherwise copy
     timeStamp="$(date +%Y-%m-%d.%H-%M-%S)"
     currentConfig=${KUBECONFIG:-${HOME}/.kube/config}
     if [ -e "${currentConfig}" ]; then
         # backup
         cp "${currentConfig}" "${currentConfig}.${timeStamp}"
         # merge backup and new into current
-        KUBECONFIG=${currentConfig}.${timeStamp}:${1} kubectl config view --flatten > "${currentConfig}"
+        KUBECONFIG=${1}:${currentConfig}.${timeStamp} kubectl config view --flatten > "${currentConfig}"
     else
         cp ${1} ${currentConfig}
     fi
