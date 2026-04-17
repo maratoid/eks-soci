@@ -17,7 +17,6 @@ RUN --mount=type=cache,sharing=locked,id=apt-cache,target=/var/cache/apt apt-get
   && apt-get install -y --no-install-recommends \
     apt-transport-https \
     ca-certificates \
-    amazon-ecr-credential-helper \
     curl \
     fuse3 \
     fuse-overlayfs \
@@ -29,6 +28,7 @@ RUN --mount=type=cache,sharing=locked,id=apt-cache,target=/var/cache/apt apt-get
     net-tools \
     socat \
     jq \
+    strace \
     unzip \
     supervisor \
   && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* 

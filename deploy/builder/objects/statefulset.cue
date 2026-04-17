@@ -59,6 +59,16 @@ import apps "cue.dev/x/k8s.io/api/apps/v1"
 				livenessProbe: periodSeconds:              30
 				securityContext: privileged:               true
 				securityContext: allowPrivilegeEscalation: true
+				env: [
+					{
+						name:  "BUILDKIT_HOST"
+						value: "unix:///builder/run/buildkit/buildkitd.sock"
+					},
+					{
+						name:  "OTEL_TRACES_EXPORTER"
+						value: "none"
+					},
+				]
 				volumeMounts: [
 					{
 						name:      "config"
