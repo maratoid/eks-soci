@@ -8,6 +8,19 @@ import (
 	"maratg.com/buildkit/objects"
 )
 
+command: apply: $short: "Deploys builder statefulset to kubernetes cluster"
+command: apply: $long: """
+	Deploys builder statefulset to kubernetes cluster.
+
+	Use '-t values=path/to/values.yaml,...' to override default values in 'values/values.cue'
+	Use '-t namespace=<namespace>' to override target namespace
+
+	YAML values are unified in order, starting with 'values/values.cue'
+	'-t namespace=<namespace>' takes precedence over values, if set.
+
+	For example:
+		cue cmd apply -t values=example/values/values.yaml,example/values/other.yaml -t namespace=whoa
+	"""
 command: apply: {
 	read: [
 		for f in _valueFilesList {

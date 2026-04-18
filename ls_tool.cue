@@ -7,6 +7,13 @@ import (
 	"maratg.com/buildkit/objects"
 )
 
+command: ls: $short: "List all builder statefulset kubernetes objects"
+command: ls: $long: """
+	List all builder statefulset kubernetes objects.
+
+	For example:
+		cue cmd ls
+	"""
 command: ls: cli.Print & {
 	let _computed = objects.#MakeObjects & {values: inputValues}
 	let lines = [

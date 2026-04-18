@@ -47,6 +47,7 @@ import apps "cue.dev/x/k8s.io/api/apps/v1"
 		spec: template: spec: containers: [
 			{
 				name:  "containerd"
+				args: ["-c", "/etc/supervisor/supervisord.conf"]
 				image: _P.values.buildkitImage
 				resources: requests: memory: "3G"
 				resources: requests: cpu:    "1"
@@ -59,6 +60,11 @@ import apps "cue.dev/x/k8s.io/api/apps/v1"
 				livenessProbe: periodSeconds:              30
 				securityContext: privileged:               true
 				securityContext: allowPrivilegeEscalation: true
+				lifecycle: postStart: exec: command: [
+					"/bin/sh", 
+					"-c", 
+					"mkdir -p /builder/run/supervisord; mkdir -p  /builder/run/runc"
+				]
 				env: [
 					{
 						name:  "BUILDKIT_HOST"

@@ -18,6 +18,15 @@ _buildKitLog: {
 	}
 }
 
+_sociLog: {
+	info: {
+		debug: "false"
+	}
+	debug: {
+		debug: "true"
+	}
+}
+
 #MakeObjects: {
 	let _P = self
 	objects: cm: core.#ConfigMap & {
@@ -29,8 +38,20 @@ _buildKitLog: {
 
 			[log]
 				format = "json"
+
 			[worker.oci]
 				enabled = false
+
+			[cdi]
+				disabled = true
+
+			[grpc]
+				address = [ "tcp://0.0.0.0:\(_P.values.buildKitPort)" ]
+				[grpc.tls]
+					cert = "/certs/tls.crt"
+					key = "/certs/tls.key"
+					ca = "/certs/ca.crt"
+
 			[worker.containerd]
 				enabled = true
 				address = "/builder/run/containerd/containerd.sock"
@@ -39,9 +60,9 @@ _buildKitLog: {
 				gc = true
 				gckeepstorage = "10%"
 
-
 				[worker.containerd.runtime]
 					name = "io.containerd.runc.v2"
+					options = { Root = "/builder/run/runc" }
 
 				[[worker.containerd.gcpolicy]]
 					all = false
@@ -60,7 +81,7 @@ _buildKitLog: {
 					keepBytes = "10%"
 			"""
 		data: "soci.toml": """
-			debug = false
+			debug = \(_sociLog[_P.values.sociLogLevel].debug)
 			resolve_result_entry = 120
 			no_prometheus = true
 
@@ -81,7 +102,7 @@ _buildKitLog: {
 			"""
 		data: "supervisord.conf": """
 			[unix_http_server]
-			file=/run/supervisor.sock
+			file=/builder/run/supervisord/supervisor.sock
 
 			[supervisord]
 			nodaemon=true
@@ -98,7 +119,7 @@ _buildKitLog: {
 			serverurl=unix:///builder/run/supervisord/supervisor.sock
 
 			[program:soci-snapshotter-grpc]
-			command=/usr/local/bin/soci-snapshotter-grpc -log-level \(_P.values.sociLogLevel) -address /builder/run/soci-snapshotter/soci-snapshotter-grpc.sock -root /builder/soci-snapshotter -config /etc/soci-snapshotter-grpc/config.toml
+			command=/usr/local/bin/soci-snapshotter-grpc --address /builder/run/soci-snapshotter/soci-snapshotter-grpc.sock --root /builder/soci-snapshotter --config /etc/soci-snapshotter-grpc/config.toml
 			stdout_logfile=/dev/stdout
 			stdout_logfile_maxbytes=0
 			stderr_logfile=/dev/stderr
@@ -118,7 +139,7 @@ _buildKitLog: {
 			priority=100
 
 			[program:buildkitd]
-			command=buildkitd --addr unix:///builder/run/buildkit/buildkitd.sock --addr tcp://0.0.0.0:\(_P.values.buildKitPort) --tlscacert /certs/ca.crt --tlscert /certs/tls.crt --tlskey /certs/tls.key
+			command=buildkitd --addr unix:///builder/run/buildkit/buildkitd.sock
 			stdout_logfile=/dev/stdout
 			stdout_logfile_maxbytes=0
 			stderr_logfile=/dev/stderr
@@ -162,6 +183,9 @@ _buildKitLog: {
 					address = "/builder/run/soci-snapshotter/soci-snapshotter-grpc.sock"
 					[proxy_plugins.soci.exports]
 						root = "/builder/soci-snapshotter"
+			
+			[plugins.'io.containerd.cri.v1.runtime']
+				enable_cdi = false
 			"""
 	}
 

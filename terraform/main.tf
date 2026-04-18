@@ -10,7 +10,7 @@ resource "multipass_instance" "master_node" {
 }
 
 resource "multipass_instance" "worker_node" {
-  count = var.vm_count
+  count = var.worker_count
 
   name   = "${var.worker_name_prefix}-${count.index}"
   image  = var.image
