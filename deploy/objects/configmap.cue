@@ -186,6 +186,10 @@ _sociLog: {
 			
 			[plugins.'io.containerd.cri.v1.runtime']
 				enable_cdi = false
+			
+			[[plugins."io.containerd.transfer.v1.local".unpack_config]]
+				platform = "linux"
+				snapshotter = "soci"
 			"""
 	}
 

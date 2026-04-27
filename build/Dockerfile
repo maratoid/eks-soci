@@ -1,3 +1,13 @@
+FROM --platform=$BUILDPLATFORM golang:alpine AS consistenthash
+
+ARG TARGETOS
+ARG TARGETARCH
+
+RUN mkdir -p /build
+WORKDIR /build
+COPY ./build/consistenthash/ .
+RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o consistenthash .
+
 FROM ubuntu:22.04
 
 ARG CONTAINERD_VERSION=2.2.3
@@ -107,25 +117,17 @@ RUN mkdir /tmp/soci \
 COPY <<'EOF' /soci.sh
 #!/usr/bin/env bash
 # build and push image SOCI index with nerdctl, pulling the image first if needed.
-# soci.sh <containerd namespace> <image:tag>
-all_images="$(nerdctl --namespace ${1} images --format json)"
-if [[ "${all_images}" = "" ]]; then
-  nerdctl --namespace ${1} pull ${image_name}
-elif ! echo ${all_images} | jq -e --arg name "${2}" 'select(.Name == $name)'; then
-  nerdctl --namespace ${1} pull ${image_name}
+# soci.sh <image:tag> <containerd namespace> 
+if ! nerdctl --namespace ${2} image inspect --all-platforms ${1} > /dev/null 2>&1; then
+  nerdctl --namespace ${2} pull --all-platforms ${1}
 fi
 
-nerdctl --namespace ${1} push --snapshotter=soci ${2}
+nerdctl --namespace ${2} image convert --soci --all-platforms ${1} ${1}
+nerdctl --namespace ${2} push --all-platforms ${1}
 EOF
 RUN chmod +x /soci.sh 
 
-# create docker config with aws credential helper config
-# This example assumes use of ECR as the target registry for pushing buult images and SOCI indexes
-COPY <<'EOF' /root/.docker/config.json
-{
-  "credsStore": "ecr-login"
-}
-EOF
+COPY --link --from=consistenthash /build/consistenthash /usr/local/bin/consistenthash
 
 WORKDIR /
 

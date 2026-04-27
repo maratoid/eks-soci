@@ -1,0 +1,10 @@
+tap "cue-lang/tap"
+
+brew "fzf"
+brew "glow"
+brew "gomplate"
+brew "jq"
+brew "just"
+brew "cue"
+cask "multipass"
+brew "opentofu"
