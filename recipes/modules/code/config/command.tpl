@@ -5,4 +5,4 @@ import './{{ . }}.just'
 
 [private]
 default:
-  @just --justfile {{"{{"}} justfile() {{"}}"}} --list {{ (datasource "module").name }}
+    @just --justfile {{"{{"}} justfile() {{"}}"}} --list {{ (datasource "module").name }}

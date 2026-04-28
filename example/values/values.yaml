@@ -1,3 +1,4 @@
 sociLogLevel: debug
 containerdLogLevel: debug
 buildkitLogLevel: debug
+baseName: oops

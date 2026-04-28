@@ -5,7 +5,7 @@ help *command:
     subhelps=""
     if (( $# == 0 )); then
         for module in recipes/modules/*/ ; do
-            subhelps="${subhelps}\njust help ${module:t:r}"
+            subhelps="${subhelps}\njust help $(basename "$module")"
         done
     elif (( $# == 1 )); then
         if ! [ -d recipes/modules/$1/help ]; then
@@ -14,7 +14,7 @@ help *command:
         fi
 
         for md_file in recipes/modules/$1/help/*.md; do
-            subhelps="${subhelps}\njust help $1 ${md_file:t:r}"
+            subhelps="${subhelps}\njust help $1 $(basename "$md_file" .md)"
         done
     elif (( $# == 2 )); then
         if ! [ -d recipes/modules/$1/help ]; then

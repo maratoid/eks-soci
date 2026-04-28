@@ -3,6 +3,7 @@ package cmd
 import (
 	"tool/exec"
 	"list"
+	val "maratg.com/buildkit/values"
 )
 
 command: vals: $short: "Dump unified builder stateful set values to stdout"
@@ -20,6 +21,14 @@ command: vals: $long: """
 	"""
 command: vals: {
 	print: exec.Run & {
+		_ns: {
+			if _namespace != _|_  {
+				_namespace
+			}
+			if _namespace == _|_  {
+				val.#Values.namespace
+			}
+		}
 		cmd: list.Concat([
 			[
 				"cue",
@@ -31,6 +40,8 @@ command: vals: {
 				"#Values",
 				"--out",
 				"yaml",
+				"-t",
+				"namespace=\(_ns)",
 			],
 			_valueFilesList,
 		])

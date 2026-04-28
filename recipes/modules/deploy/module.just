@@ -3,4 +3,4 @@ import './recipes.just'
 
 [private]
 default:
-  @just --justfile {{ justfile() }} --list deploy
+    @just --justfile {{ justfile() }} --list deploy

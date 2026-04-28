@@ -50,7 +50,7 @@ locals {
         address = "/run/soci-snapshotter-grpc/soci-snapshotter-grpc.sock"
         [proxy_plugins.soci.exports]
           root = "/var/lib/soci-snapshotter-grpc"
-          enable_remote_snapshot_annotations = true
+          enable_remote_snapshot_annotations = "true"
 
     [plugins]
       [plugins.'io.containerd.internal.v1.opt']

@@ -1,5 +1,5 @@
 # set shell
-set shell := ["/bin/zsh", "-cu"]
+set shell := ["/bin/bash", "-cu"]
 
 # allow duplicate recipe names
 set allow-duplicate-recipes := true
@@ -12,12 +12,12 @@ set positional-arguments := true
 
 # reusable shebng line for recipes
 shebang := '''
-    /usr/bin/env zsh
+    /usr/bin/env bash
     ```[[ -n "${DEBUG:-}" ]] && echo 'set -x' || true```
 '''
 
 shebang_strict := '''
-    /usr/bin/env zsh
+    /usr/bin/env bash
     ```[[ -n "${DEBUG:-}" ]] && echo 'set -xeuo pipefail' || echo 'set -euo pipefail'```
 '''
 # reusable way to call just recipes from just recipes

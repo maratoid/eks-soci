@@ -35,6 +35,8 @@ command: dump: {
 			for r in read {
 				yaml.Unmarshal(r.contents)
 			}
+		} & {
+			namespace: _namespace
 		}
 		text: yaml.MarshalStream((objects.#MakeObjects & {values: _values}).objectsList)
 	}

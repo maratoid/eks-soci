@@ -4,6 +4,8 @@ import (
 	"strings"
 	"tool/cli"
 	"text/tabwriter"
+	"encoding/yaml"
+	"tool/file"
 	"maratg.com/buildkit/objects"
 )
 
@@ -14,14 +16,31 @@ command: ls: $long: """
 	For example:
 		cue cmd ls
 	"""
-command: ls: cli.Print & {
-	let _computed = objects.#MakeObjects & {values: inputValues}
-	let lines = [
-		"KIND\tID\tNAME",
-		"=====\t=====\t=====",
-		for k, v in _computed.objects {
-			"\(v.kind)\t\(k)\t\(v.metadata.name)"
+command: ls: {
+	read: [
+		for f in _valueFilesList {
+			file.Read & {
+				filename: f
+				contents: string
+			} 
 		},
 	]
-	text: tabwriter.Write(strings.Join(lines, "\n"))
+
+	print: cli.Print & {
+		let _values = {
+			for r in read {
+				yaml.Unmarshal(r.contents)
+			}
+		} & {
+			namespace: _namespace
+		}
+		let lines = [
+			"KIND\tID\tNAME",
+			"=====\t=====\t=====",
+			for k, v in (objects.#MakeObjects & {values: _values}).objects {
+				"\(v.kind)\t\(k)\t\(v.metadata.name)"
+			},
+		]
+		text: tabwriter.Write(strings.Join(lines, "\n"))
+	}
 }
