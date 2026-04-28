@@ -183,6 +183,7 @@ _sociLog: {
 					address = "/builder/run/soci-snapshotter/soci-snapshotter-grpc.sock"
 					[proxy_plugins.soci.exports]
 						root = "/builder/soci-snapshotter"
+						enable_remote_snapshot_annotations = true
 			
 			[plugins.'io.containerd.cri.v1.runtime']
 				enable_cdi = false

@@ -26,3 +26,5 @@ just_call := "just --dotenv-path " + justfile_directory() / "recipes" / ".justen
 # overrideables
 just_tf_binary := env_var_or_default('JUST_TF_BINARY', 'tofu')
 just_certmanager_version := env_var_or_default('JUST_CERTMANAGER_VERSION', '1.20.2')   
+just_builder_base_name := env_var_or_default('JUST_BUILDER_BASE_NAME', 'buildkit')
+just_builder_namespace := env_var_or_default('JUST_BUILDER_NAMESPACE', 'buildkit')
