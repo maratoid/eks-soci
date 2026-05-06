@@ -1,3 +1,7 @@
+# Deploy all required components to k3s cluster
+[no-cd]
+all: (certmanager "create") (buildkit "create")
+
 # Operate certmanager deployment in k3s cluster: action=create|destroy [version]
 [no-cd]
 certmanager action *version=just_certmanager_version:
@@ -6,12 +10,17 @@ certmanager action *version=just_certmanager_version:
     {{ just_call }} _params "action" {{ action }} create destroy
     {{ just_call }} deploy _certmanager_{{ action }} {{ version}}
 
-# Operate build kit deployment in k3s cluster: buildkit action=create|destroy|dryrun|dump|vals|schema|objects [values...]
+# Operate build kit deployment in k3s cluster: buildkit action=create|destroy|dryrun|dump|vals|schema|objects|rollout [values...]
 [no-cd]
 buildkit action *values:
     #!{{ shebang_strict }}
 
-    {{ just_call }} _params "action" {{ action }} create destroy dryrun dump vals schema objects
+    {{ just_call }} _params "action" {{ action }} create destroy dryrun dump vals schema objects rollout
+
+    if [[ "{{ action }}" == "rollout" ]]; then
+        kubectl rollout restart statefulset {{ just_builder_base_name }}-ss -n {{ just_builder_namespace }}
+        exit 0
+    fi
 
     # calculate values paths
     values_str="{{ values }}"
@@ -50,50 +59,13 @@ buildkit action *values:
         cue cmd delete -t namespace={{ just_builder_namespace }} ${value_paths_param}
     fi
 
-# Perform local builder configuration action=setup|info|use|replicas 
-[no-cd]
-builders action *params:
-    #!{{ shebang_strict }}
-
-    {{ just_call }} _params "action" {{ action }} setup info use replicas
-    {{ just_call }} deploy _builders_{{ action }} {{ params }}
-
-[no-cd]
-_builders_setup *params:
-    #!{{ shebang_strict }}
-
-    num_replicas=$({{ just_call }} deploy builders replicas)
-    for i in $(seq 0 $((num_replicas-1))); do
-        docker buildx rm --force {{ just_builder_base_name }}-${i} > /dev/null 2>&1 || true
-        docker buildx create --name {{ just_builder_base_name }}-${i} --node {{ just_builder_base_name }}-${i} --driver remote \
-            kube-pod://{{ just_builder_base_name }}-ss-${i}?namespace={{ just_builder_namespace }}
-    done
-
-[no-cd]
-_builders_info *dummy:
-    @docker buildx ls
-
-[no-cd]
-_builders_use *params:
-    #!{{ shebang_strict }}
-
-    builder_num="{{ params }}"
-    if [[ "${builder_num}" == "" ]]; then
-        builder_num="0"
-    fi
-
-    docker buildx use {{ just_builder_base_name }}-${builder_num}
-
-[no-cd]
-_builders_replicas *params:
-    @kubectl get statefulset {{ just_builder_base_name }}-ss -n {{ just_builder_namespace }} -o json | jq '.status.replicas'
-
 [no-cd]
 _certmanager_create version: 
     #!{{ shebang_strict }}
 
     kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v{{ version }}/cert-manager.crds.yaml
     kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v{{ version }}/cert-manager.yaml
+    kubectl apply -f https://github.com/emberstack/kubernetes-reflector/releases/latest/download/reflector.yaml -n kube-system
 
 [no-cd]
 _certmanager_destroy version: 
@@ -101,3 +73,4 @@ _certmanager_destroy version:
 
     kubectl delete -f https://github.com/cert-manager/cert-manager/releases/download/v{{ version }}/cert-manager.yaml
     kubectl delete -f https://github.com/cert-manager/cert-manager/releases/download/v{{ version }}/cert-manager.crds.yaml
+    kubectl delete -f https://github.com/emberstack/kubernetes-reflector/releases/latest/download/reflector.yaml -n kube-system

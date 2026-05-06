@@ -71,6 +71,10 @@ import apps "cue.dev/x/k8s.io/api/apps/v1"
 						value: "unix:///builder/run/buildkit/buildkitd.sock"
 					},
 					{
+						name:  "CONTAINERD_ADDRESS"
+						value: "/builder/run/containerd/containerd.sock"
+					},
+					{
 						name:  "OTEL_TRACES_EXPORTER"
 						value: "none"
 					},
@@ -117,6 +121,10 @@ import apps "cue.dev/x/k8s.io/api/apps/v1"
 			{
 				name: "config"
 				configMap: name: objects.cm.metadata.name
+			},
+			{
+				name: "auth"
+				secret: secretName: _P.values.sociKubeconfigSecret
 			},
 			{
 				name: "certs"

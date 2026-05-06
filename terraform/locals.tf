@@ -16,6 +16,16 @@ locals {
 
     mkdir -p /etc/soci-snapshotter-grpc
     cat <<EOF_SNAPSHOTTER_CONFIG >/etc/soci-snapshotter-grpc/config.toml
+    [pull_modes.soci_v2]
+    enable = true
+
+    [pull_modes.parallel_pull_unpack]
+    enable = false
+    experimental_parallel_pull_as_fallback = true
+    max_concurrent_downloads_per_image = 10
+    concurrent_download_chunk_size = "16mb"
+    max_concurrent_unpacks_per_image = 10
+    discard_unpacked_layers = true
     [cri_keychain]
     enable_keychain = true
     image_service_path = "/run/k3s/containerd/containerd.sock"
@@ -180,6 +190,10 @@ locals {
       - /usr/local/bin/soci-setup.sh
       - curl -sfL https://get.k3s.io | K3S_TOKEN=${local.k3s_token} sh -s - server --cluster-init --node-label role=master
       - cp /etc/rancher/k3s/k3s.yaml /home/ubuntu/k3s.yaml
+      - /usr/local/bin/kubectl create secret generic socikeychain --from-file=kubeconfig=/etc/rancher/k3s/k3s.yaml --namespace kube-system
+      - /usr/local/bin/kubectl annotate secret socikeychain reflector.v1.k8s.emberstack.com/reflection-allowed=true --namespace kube-system
+      - /usr/local/bin/kubectl annotate secret socikeychain reflector.v1.k8s.emberstack.com/reflection-auto-enabled=true --namespace kube-system
+      - /usr/local/bin/kubectl annotate secret socikeychain reflector.v1.k8s.emberstack.com/reflection-auto-namespaces-selector="maratg.com/buildkit/namespace=true" --namespace kube-system
       - chown ubuntu /home/ubuntu/k3s.yaml
   EOT
 

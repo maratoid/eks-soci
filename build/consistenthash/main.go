@@ -3,14 +3,30 @@ package main
 import (
 	"fmt"
 
+	"math/big"
+
 	"github.com/alecthomas/kong"
+	"github.com/buraksezer/consistent"
+	"github.com/cespare/xxhash"
 	"github.com/pkg/errors"
-	"github.com/serialx/hashring"
 )
 
 type CLI struct {
 	Key  string   `arg:"" optional:"" help:"Key to hash to a data value" `
 	Data []string `arg:"" optional:"" help:"Space-delimited list of possible data values"`
+}
+
+type hasher struct{}
+
+func (h hasher) Sum64(data []byte) uint64 {
+	// you should use a proper hash function for uniformity.
+	return xxhash.Sum64(data)
+}
+
+type ringNode string
+
+func (n ringNode) String() string {
+	return string(n)
 }
 
 func (c *CLI) Validate() error {
@@ -45,11 +61,31 @@ func main() {
 	_ = ctx.Run()
 }
 
-func getHash(nodes []string, key string) (string, error) {
-	ring := hashring.New(nodes)
-	x, ok := ring.GetNode(key)
-	if !ok {
-		return "", errors.Errorf("no node found for key %q", key)
+func nextPrime(n int) (int, error) {
+	for i := n; i < 2*n; i++ {
+		if big.NewInt(int64(i)).ProbablyPrime(0) {
+			return i, nil
+		}
 	}
-	return x, nil
+	return 0, errors.Errorf("could not find next prime after %d", n)
+}
+
+func getHash(nodes []string, key string) (string, error) {
+	partitionCount, err := nextPrime(len(nodes) * 3)
+	if err != nil {
+		return "", err
+	}
+
+	cfg := consistent.Config{
+		PartitionCount:    partitionCount,
+		ReplicationFactor: partitionCount * 3,
+		Load:              1.25,
+		Hasher:            hasher{},
+	}
+	c := consistent.New(nil, cfg)
+	for _, node := range nodes {
+		c.Add(ringNode(node))
+	}
+
+	return c.LocateKey([]byte(key)).String(), nil
 }

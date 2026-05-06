@@ -96,9 +96,21 @@ _sociLog: {
 				type = "containerd"
 				namespace = "buildkit"
 				containerd_address = '/builder/run/containerd/containerd.sock'
+			
+			[pull_modes.soci_v2]
+				enable = true
 
 			[pull_modes.parallel_pull_unpack]
-				enable = true
+				enable = false
+				experimental_parallel_pull_as_fallback = true
+				max_concurrent_downloads_per_image = 10
+				concurrent_download_chunk_size = "16mb"
+				max_concurrent_unpacks_per_image = 10
+				discard_unpacked_layers = true
+
+			[kubeconfig_keychain]
+				enable_keychain = true
+				kubeconfig_path = "/builder/kubeconfig"
 			"""
 		data: "supervisord.conf": """
 			[unix_http_server]

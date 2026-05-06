@@ -1,3 +1,5 @@
+mod build 'recipes/modules/build/module.just'
+mod builders 'recipes/modules/builders/module.just'
 mod deploy 'recipes/modules/deploy/module.just'
 mod cluster 'recipes/modules/cluster/module.just'
 mod deps 'recipes/modules/deps/module.just'
