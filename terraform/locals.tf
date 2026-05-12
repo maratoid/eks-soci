@@ -190,10 +190,6 @@ locals {
       - /usr/local/bin/soci-setup.sh
       - curl -sfL https://get.k3s.io | K3S_TOKEN=${local.k3s_token} sh -s - server --cluster-init --node-label role=master
       - cp /etc/rancher/k3s/k3s.yaml /home/ubuntu/k3s.yaml
-      - /usr/local/bin/kubectl create secret generic socikeychain --from-file=kubeconfig=/etc/rancher/k3s/k3s.yaml --namespace kube-system
-      - /usr/local/bin/kubectl annotate secret socikeychain reflector.v1.k8s.emberstack.com/reflection-allowed=true --namespace kube-system
-      - /usr/local/bin/kubectl annotate secret socikeychain reflector.v1.k8s.emberstack.com/reflection-auto-enabled=true --namespace kube-system
-      - /usr/local/bin/kubectl annotate secret socikeychain reflector.v1.k8s.emberstack.com/reflection-auto-namespaces-selector="maratg.com/buildkit/namespace=true" --namespace kube-system
       - chown ubuntu /home/ubuntu/k3s.yaml
   EOT
 

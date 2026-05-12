@@ -26,7 +26,25 @@ soci *args:
     docker buildx use "{{ just_builder_base_name }}-${builderNum}"
     docker buildx build {{ args }}
 
-    kubectl exec {{ just_builder_base_name }}-ss-${builderNum} -n {{ just_builder_namespace }} -c containerd -- /soci.sh ${buildTag} buildkit
+    githubToken=""
+    if [[ "{{ just_pass_gh_token }}" == "yes" ]]; then
+        githubToken=$(gh auth token)
+    fi
+
+    dockerEnvUsrRegex='^DOCKER_.*_USR=.+$'
+    dockerEnvPwdRegex='^DOCKER_.*_PSW=.+$'
+    dockerEnvCreds=()
+    while IFS='=' read -r name value; do
+        if [[ "$name=$value" =~ $dockerEnvUsrRegex ]]; then
+            dockerEnvCreds+=("${name}=${value}")
+        fi
+        if [[ "$name=$value" =~ $dockerEnvPwdRegex ]]; then
+            dockerEnvCreds+=("${name}=${value}")
+        fi
+    done < <(env)
+
+    dockerEnvCredsString="${dockerEnvCreds[*]}"
+    kubectl exec {{ just_builder_base_name }}-ss-${builderNum} -n {{ just_builder_namespace }} -c containerd -- env GITHUB_TOKEN="${githubToken}" ${dockerEnvCredsString} /soci.sh ${buildTag} buildkit
 
 # Get consistent hash mapping of a tag to builder number
 [no-cd]

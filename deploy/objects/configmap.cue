@@ -107,10 +107,6 @@ _sociLog: {
 				concurrent_download_chunk_size = "16mb"
 				max_concurrent_unpacks_per_image = 10
 				discard_unpacked_layers = true
-
-			[kubeconfig_keychain]
-				enable_keychain = true
-				kubeconfig_path = "/builder/kubeconfig"
 			"""
 		data: "supervisord.conf": """
 			[unix_http_server]

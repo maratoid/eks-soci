@@ -17,6 +17,7 @@ ARG PLUGINS_VERSION=1.9.1
 ARG CRITOOLS_VERSION=1.35.0
 ARG BUILDKIT_VERSION=0.29.0
 ARG RUNC_VERSION=1.4.2
+ARG DOCKER_CREDENTIAL_ENV_VERSION=1.6.1
 ARG TARGETARCH
 
 USER root
@@ -103,6 +104,15 @@ RUN mkdir /tmp/nerdctl \
   && cd / \
   && rm -rf /tmp/nerdctl
 
+# docker-credential-env
+RUN mkdir /tmp/docker-credential-env \
+  && cd /tmp/docker-credential-env \
+  && curl -sL "https://github.com/isometry/docker-credential-env/releases/download/v${DOCKER_CREDENTIAL_ENV_VERSION}/docker-credential-env_${DOCKER_CREDENTIAL_ENV_VERSION}_linux_${TARGETARCH}.zip" -o "docker-credential-env_${DOCKER_CREDENTIAL_ENV_VERSION}_linux_${TARGETARCH}.zip" \
+  && unzip  "docker-credential-env_${DOCKER_CREDENTIAL_ENV_VERSION}_linux_${TARGETARCH}.zip" \
+  && mv docker-credential-env /usr/local/bin \
+  && cd / \
+  && rm -rf /tmp/docker-credential-env
+
 # soci
 RUN mkdir /tmp/soci \
   && cd /tmp/soci \
@@ -122,10 +132,19 @@ if ! nerdctl --namespace ${2} image inspect --all-platforms ${1} > /dev/null 2>&
   nerdctl --namespace ${2} pull --all-platforms ${1}
 fi
 
+
 nerdctl --namespace ${2} image convert --soci --all-platforms ${1} ${1}
 nerdctl --namespace ${2} push --all-platforms ${1}
 EOF
 RUN chmod +x /soci.sh 
+
+# configure all Docker authentication to use the docker-credential-env credential helper
+RUN mkdir /root/.docker
+COPY <<'EOF' /root/.docker/config.json
+{
+  "credsStore": "env"
+}
+EOF
 
 COPY --link --from=consistenthash /build/consistenthash /usr/local/bin/consistenthash
 

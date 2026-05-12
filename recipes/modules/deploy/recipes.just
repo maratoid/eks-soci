@@ -65,7 +65,6 @@ _certmanager_create version:
 
     kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v{{ version }}/cert-manager.crds.yaml
     kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v{{ version }}/cert-manager.yaml
-    kubectl apply -f https://github.com/emberstack/kubernetes-reflector/releases/latest/download/reflector.yaml -n kube-system
 
 [no-cd]
 _certmanager_destroy version: 
@@ -73,4 +72,3 @@ _certmanager_destroy version:
 
     kubectl delete -f https://github.com/cert-manager/cert-manager/releases/download/v{{ version }}/cert-manager.yaml
     kubectl delete -f https://github.com/cert-manager/cert-manager/releases/download/v{{ version }}/cert-manager.crds.yaml
-    kubectl delete -f https://github.com/emberstack/kubernetes-reflector/releases/latest/download/reflector.yaml -n kube-system

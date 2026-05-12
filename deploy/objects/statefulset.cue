@@ -123,10 +123,6 @@ import apps "cue.dev/x/k8s.io/api/apps/v1"
 				configMap: name: objects.cm.metadata.name
 			},
 			{
-				name: "auth"
-				secret: secretName: _P.values.sociKubeconfigSecret
-			},
-			{
 				name: "certs"
 				secret: secretName: _P.values.tlsSecret
 			},
