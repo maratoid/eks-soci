@@ -1,0 +1,7 @@
+.DS_Store
+mise.local.toml
+kubeconfig.multipass
+terraform/.terraform
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+terraform/.terraform.*

@@ -1,0 +1,9 @@
+[tools]
+coreutils = "latest"
+cue = "latest"
+fzf = "latest"
+glow = "latest"
+gomplate = "latest"
+jq = "latest"
+just = "latest"
+opentofu = "latest"
