@@ -97,6 +97,27 @@ buildkit-1          remote
 ...
 ```
 
+## Registry authentication
+
+Buildkit pods rely on [docker-credential-env](https://github.com/isometry/docker-credential-env) helper to authenticate with remote registries.
+
+By default `just build soci` will always attempt top pass output of `gh auth token` to builder pods as `GITHUB_TOKEN`. If you don't want that, set `JUST_PASS_GH_TOKEN` to `no`.
+
+Easiest way to set that, and also provide [environment variables docker-credentials-env will recognize](https://github.com/isometry/docker-credential-env#environment-variables) is to create a `mise.local.toml` file in the root of the repo:
+
+```
+cat <<EOF >mise.local.toml
+[env]
+JUST_PASS_GH_TOKEN = 'no'
+DOCKER_quay_io_USR = 'curly'
+DOCKER_quay_io_PSW = 'nyuk-nyuk-nyuk'
+DOCKER_myregistry_com_USR = 'moe'
+DOCKER_myregistry_com_PSW = 'nyuk-NYUK-nyuk'    
+EOF
+```
+
+These will be loaded into your shell when `mise` activates
+
 ## Build
 
 Run:
