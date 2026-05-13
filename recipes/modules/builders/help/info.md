@@ -1,39 +1,31 @@
-# deploy buildkit help page
+# builders info help page
 
 # NAME
 
-deploy buildkit
+builders info
 
 # DESCRIPTION
 
-TODO: Add description here
+Display local buildx builder configuration
 
 # EXAMPLE
 
-```zsh
-just deploy buildkit ...
-Fill me out!
+```bash
+just builders info
 ```
 
 # PARAMETERS
 
-
 None
-
 
 # FILES
 
-TODO: related file locations or 'None'!
+None
 
 # Environment variables
 
-TODO: related environment variables or 'None'!
+None
 
-# SEE ALSO
-
-```zsh
-TODO: related commands of note
-```
 
 # AUTHOR
 

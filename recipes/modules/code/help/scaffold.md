@@ -10,7 +10,7 @@ Create scaffolding for a new just module with recipes
 
 # EXAMPLE
 
-```zsh
+```bash
 just code scaffold deps bin
 just code scaffold code lint dryrun path
 ```

@@ -16,7 +16,7 @@ command: dryrun: $long: """
 	Use '-t namespace=<namespace>' to override target namespace
 
 	YAML values are unified in order, starting with 'values/values.cue'
-	'-t namespace=<namespace>' takes precedence over values, if set.
+	Each value in 'values/values.cue' can only be overridden once.
 
 	For example:
 		cue cmd dryrun -t values=example/values/values.yaml,example/values/other.yaml -t namespace=whoa

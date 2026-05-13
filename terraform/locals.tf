@@ -16,19 +16,25 @@ locals {
 
     mkdir -p /etc/soci-snapshotter-grpc
     cat <<EOF_SNAPSHOTTER_CONFIG >/etc/soci-snapshotter-grpc/config.toml
+    [content_store]
+      type = "containerd"
+      namespace = "k8s.io"
+      containerd_address = '/run/k3s/containerd/containerd.sock'
+
     [pull_modes.soci_v2]
-    enable = true
+      enable = true
 
     [pull_modes.parallel_pull_unpack]
-    enable = false
-    experimental_parallel_pull_as_fallback = true
-    max_concurrent_downloads_per_image = 10
-    concurrent_download_chunk_size = "16mb"
-    max_concurrent_unpacks_per_image = 10
-    discard_unpacked_layers = true
+      enable = false
+      experimental_parallel_pull_as_fallback = true
+      max_concurrent_downloads_per_image = 10
+      concurrent_download_chunk_size = "16mb"
+      max_concurrent_unpacks_per_image = 10
+      discard_unpacked_layers = true
+    
     [cri_keychain]
-    enable_keychain = true
-    image_service_path = "/run/k3s/containerd/containerd.sock"
+      enable_keychain = true
+      image_service_path = "/run/k3s/containerd/containerd.sock"
     EOF_SNAPSHOTTER_CONFIG
 
     curl -fLo /etc/systemd/system/soci-snapshotter.service https://raw.githubusercontent.com/awslabs/soci-snapshotter/v$${VERSION}/soci-snapshotter.service

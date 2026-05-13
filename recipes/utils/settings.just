@@ -11,15 +11,27 @@ set dotenv-path := "recipes/.justenv"
 set positional-arguments := true
 
 # reusable shebng line for recipes
-shebang := '''
+shebang := if os() == "macos" { if arch() == "aarch64" {'''
+    /opt/homebrew/opt/bash/bin/bash
+    ```[[ -n "${DEBUG:-}" ]] && echo 'set -x' || true```
+'''} else {'''
+    /usr/local/opt/bash/bin/bash
+    ```[[ -n "${DEBUG:-}" ]] && echo 'set -x' || true```
+'''}} else {'''
     /usr/bin/env bash
     ```[[ -n "${DEBUG:-}" ]] && echo 'set -x' || true```
-'''
+'''}
 
-shebang_strict := '''
+shebang_strict := if os() == "macos" { if arch() == "aarch64" {'''
+    /opt/homebrew/opt/bash/bin/bash
+    ```[[ -n "${DEBUG:-}" ]] && echo 'set -xeuo pipefail' || echo 'set -euo pipefail'```
+'''} else {'''
+    /usr/local/opt/bash/bin/bash
+    ```[[ -n "${DEBUG:-}" ]] && echo 'set -xeuo pipefail' || echo 'set -euo pipefail'```
+'''}} else {'''
     /usr/bin/env bash
     ```[[ -n "${DEBUG:-}" ]] && echo 'set -xeuo pipefail' || echo 'set -euo pipefail'```
-'''
+'''}
 # reusable way to call just recipes from just recipes
 just_call := "just --dotenv-path " + justfile_directory() / "recipes" / ".justenv"
 

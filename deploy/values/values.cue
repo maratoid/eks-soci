@@ -10,7 +10,7 @@ import core "cue.dev/x/k8s.io/api/core/v1"
 	sociKubeconfigSecret:  string | *"socikeychain"
 	buildKitPort:          int & >0 & <65535 | *1234
 	qemuImage:             string | *"tonistiigi/binfmt:qemu-v10.2.1-65"
-	buildkitImage:         string | *"ghcr.io/maratoid/containerd-soci-builder:0.21.0"
+	buildkitImage:         string | *"ghcr.io/maratoid/containerd-soci-builder:0.25.0-soci"
 	scaleRetentionPolicy:  *"Retain" | "Delete"
 	deleteRetentionPolicy: *"Retain" | "Delete"
 	storageSize:           string & =~"^([+-]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$" | *"10Gi"

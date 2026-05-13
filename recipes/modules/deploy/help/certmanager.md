@@ -2,38 +2,41 @@
 
 # NAME
 
-deploy certmanager
+deploy certmanager `action` `[certmanager version]`
 
 # DESCRIPTION
 
-TODO: Add description here
+Manage cert-manager deployment in multipass-based kubernetes cluster.
 
 # EXAMPLE
 
-```zsh
-just deploy certmanager ...
-Fill me out!
+```bash
+just deploy certmanager create 
+just deploy certmanager create 1.20.2
+just deploy certmanager destroy 
+just deploy certmanager destroy 1.20.2
 ```
 
 # PARAMETERS
 
+## action
 
-None
+* `create` - create cert manager deployment
+* `destroy` - destroy cert manager deployment
 
+## certmanager version
+
+cert manager version. Defaults to value of `JUST_CERTMANAGER_VERSION`
 
 # FILES
 
-TODO: related file locations or 'None'!
+None
 
 # Environment variables
 
-TODO: related environment variables or 'None'!
+## JUST_CERTMANAGER_VERSION
 
-# SEE ALSO
-
-```zsh
-TODO: related commands of note
-```
+Cert manager default version. `1.20.2`
 
 # AUTHOR
 

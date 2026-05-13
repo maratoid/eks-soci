@@ -1,8 +1,35 @@
-# {{ (datasource "subcommand").parent }} {{ (datasource "subcommand").name }} help page
+# {
+    { (datasource "subcommand").parent
+    }
+} {
+    { (datasource "subcommand").name
+    }
+} help page
 
 # NAME
 
-{{ (datasource "subcommand").parent }} {{ (datasource "subcommand").name }} {{- range (datasource "subcommand").params -}}{{" "}}[{{ . }}]{{- end}}
+{
+    { (datasource "subcommand").parent
+    }
+} {
+    { (datasource "subcommand").name
+    }
+} {
+    {- range (datasource "subcommand").params -
+    }
+}{
+    {
+        " "
+    }
+}[
+    {
+        { .
+        }
+    }
+]{
+    {- end
+    }
+}
 
 # DESCRIPTION
 
@@ -10,27 +37,54 @@ TODO: Add description here
 
 # EXAMPLE
 
-```zsh
-just {{ (datasource "subcommand").parent }} {{ (datasource "subcommand").name }} ...
+```bash
+just {
+    { (datasource "subcommand").parent
+    }
+} {
+    { (datasource "subcommand").name
+    }
+} ...
 Fill me out!
 ```
 
 # PARAMETERS
 
-{{ if (gt ((datasource "subcommand").params | len) 0) }}
+{
+    { if (gt ((datasource "subcommand").params | len) 0)
+    }
+}
 ## Overview
 
 TODO: add command parameter overview here
 
-{{range (datasource "subcommand").params }}
-## {{ . }}
+{
+    {range (datasource "subcommand").params
+    }
+}
+## {
+    { .
+    }
+}
 
-TODO: documentation for {{ . }} parameter
+TODO: documentation for {
+    { .
+    }
+} parameter
 
-{{ end }}
-{{ else }}
+{
+    { end
+    }
+}
+{
+    { else
+    }
+}
 None
-{{ end }}
+{
+    { end
+    }
+}
 
 # FILES
 
@@ -42,10 +96,11 @@ TODO: related environment variables or 'None'!
 
 # SEE ALSO
 
-```zsh
+```bash
 TODO: related commands of note
 ```
 
 # AUTHOR
 
-[Your Name](mailto:you@domain.com)
+[Your Name
+](mailto:you@domain.com)

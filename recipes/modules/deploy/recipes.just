@@ -19,6 +19,7 @@ buildkit action *values:
 
     if [[ "{{ action }}" == "rollout" ]]; then
         kubectl rollout restart statefulset {{ just_builder_base_name }}-ss -n {{ just_builder_namespace }}
+        kubectl rollout status --watch --timeout=600s statefulset/{{ just_builder_base_name }}-ss -n {{ just_builder_namespace }}
         exit 0
     fi
 
@@ -45,6 +46,7 @@ buildkit action *values:
 
     if [[ "{{ action }}" == "create" ]]; then
         cue cmd apply -t namespace={{ just_builder_namespace }} ${value_paths_param}
+        kubectl rollout status --watch --timeout=600s statefulset/{{ just_builder_base_name }}-ss -n {{ just_builder_namespace }}
     elif [[ "{{ action }}" == "dryrun" ]]; then
         cue cmd dryrun -t namespace={{ just_builder_namespace }} ${value_paths_param}
     elif [[ "{{ action }}" == "dump" ]]; then
@@ -65,6 +67,7 @@ _certmanager_create version:
 
     kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v{{ version }}/cert-manager.crds.yaml
     kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v{{ version }}/cert-manager.yaml
+    kubectl wait --for=condition=available deployment/cert-manager-webhook -n cert-manager --timeout=60s
 
 [no-cd]
 _certmanager_destroy version: 

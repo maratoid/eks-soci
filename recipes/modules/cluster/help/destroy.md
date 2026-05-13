@@ -1,39 +1,37 @@
-# tf destroy help page
+# cluster destroy help page
 
 # NAME
 
-tf destroy
+cluster destroy `[terraform/tofu destroy parameters ...]`
 
 # DESCRIPTION
 
-TODO: Add description here
+Destroy multipass-based kubernetes cluster.
 
 # EXAMPLE
 
-```zsh
-just tf destroy ...
-Fill me out!
+```bash
+TF_VAR_worker_count=5 just cluster destroy -auto-approve
 ```
 
 # PARAMETERS
 
-
-None
-
+See `tofu destroy --help` and `terraform destroy --help`
 
 # FILES
 
-TODO: related file locations or 'None'!
+Terraform/OpenTofu files located at `terraform/`
 
 # Environment variables
 
-TODO: related environment variables or 'None'!
+## JUST_TF_BINARY
 
-# SEE ALSO
+Terraform binary to use. `tofu`
 
-```zsh
-TODO: related commands of note
-```
+## terraform
+
+See https://developer.hashicorp.com/terraform/cli/config/environment-variables
+
 
 # AUTHOR
 

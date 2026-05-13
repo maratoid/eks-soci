@@ -1,110 +1,119 @@
 # Building and running streamable containers in Kubernetes 
 
-## Dependencies
+## Setup - macOS
 
-* [Cuelang](https://cuelang.org/)
-* [Multipass](https://canonical.com/multipass) 
-* [OpenTofu](https://opentofu.org/)/Terraform
+### Requirements
 
-Run `brew bundle` to install all three with Homebrew
+* [Homebrew](https://brew.sh/)
+* [Multipass](https://canonical.com/multipass)
+* [mise](https://mise.jdx.dev/)
+* Bash 5.x (default macOS bash is too old at 3.x)
+
+### Setup requirements
+
+Run `brew bundle` to install modern bash, [Multipass](https://canonical.com/multipass) and [mise](https://mise.jdx.dev/)  
+
+You can install each of the requirements separately with `brew`, e.g. `brew install bash`, `brew install --cask multipass` and `brew install mise`
+
+### Mise setup
+
+Setup mise activation per [instructions](https://mise.jdx.dev/getting-started.html#activate-mise), or just run `eval "$(mise activate zsh)` or `eval "$(mise activate bash)`, depending on your shell.
+
+Then run `mise install` 
+
+
+## Setup - other
+
+### Requirements
+
+* [Multipass](https://canonical.com/multipass)
+* [mise](https://mise.jdx.dev/)
+* Bash 5.x 
+
+### Setup requirements
+
+Install [Multipass](https://canonical.com/multipass) and [mise](https://mise.jdx.dev/) 
+
+
+### Mise setup
+
+Setup mise activation per [instructions](https://mise.jdx.dev/getting-started.html#activate-mise), reload your shell session.
+
+Then run `mise install` 
 
 ## CLI
 
-Run `cue cmd help` to see available commands
+Run `just` to see available commands
 
 ```
-Available Commands:
-  apply         Deploys builder statefulset to kubernetes cluster
-  builders      Creates local buildx builder configs
-  certinstall   Deploys cert manager requirement to kubernetes cluster
-  certuninstall Removes cert manager from kubernetes cluster
-  create        Create local kubernetes cluster with multipass and k3s.
-  delete        Removes builder statefulset from kubernetes cluster
-  destroy       Destroy local multipass and k3s kubernetes cluster.
-  dryrun        Dry-run create builder statefulset in kubernetes cluster
-  dump          Dump all builder stateful set kubernetes manifests to stdout
-  ls            List all builder statefulset kubernetes objects
-  schema        Show builder statefulset values schema
-  vals          Dump unified builder stateful set values to stdout
+$ just
+Available recipes:
+    help *command # command help
+    build ...
+    builders ...
+    cluster ...
+    code ...
+    deploy ...
+```
+
+run `just help <recipe>` and `just help <recipe> <command>` for further help:
+
+```
+$ just help cluster
+
+Use:
+
+just help cluster create
+just help cluster destroy
+
+$ just help cluster create
 ```
 
 ## Deploy
 
 ### 1 - Create multipass cluster.  
 
-If using opentofu: `cue cmd create`  
-If using terraform: `cue cmd create -t tfbin=terraform`
+Run `just cluster create`
 
-See `cue help cmd create` for terraform variable overrides.
+### 2 - Deploy buildkit and cert manager
 
-### 2 - Deploy cert manager
-
-Run `cue cmd certinstall`.  
-See `cue help cmd certinstall` for command options.
-
-### 3 - Deploy buildkit stateful set
-
-Run `cue cmd apply` to deploy with defaults.  
-To override default values, run `cue cmd vals > values.yaml`:
-
-```
-baseName: buildkit
-namespace: buildkit
-tlsSecret: buildkit-tls
-replicas: 2
-buildKitPort: 1234
-qemuImage: tonistiigi/binfmt:qemu-v10.2.1-65
-buildkitImage: ghcr.io/maratoid/containerd-soci-builder:0.19.0
-scaleRetentionPolicy: Retain
-deleteRetentionPolicy: Retain
-storageSize: 10Gi
-storageMode:
-  - ReadWriteOnce
-labels: {}
-annotations: {}
-sociLogLevel: info
-containerdLogLevel: info
-buildkitLogLevel: info
-```
-
-Edit the resulting `values.yaml` file as needed and run `cue cmd apply -t values=values.yaml`  
-See `cue help cmd apply` for more options.
+Run `just deploy all`
 
 ### Configure local buildx
 
-If you deployed buildkit stateful set with `-t values=values.yaml`, run:
-
-```
-cue cmd builders -t values=values.yaml
-```
-
-Otherwise run:
-
-```
-cue cmd builders
-```
+Run `just builders setup`
 
 ### Verify
 
-Running `docker buildx ls` should give you something similar to:
+Running `just builders info` should give you something similar to:
 
 ```
-$ docker buildx ls
-NAME/NODE           DRIVER/ENDPOINT                                   STATUS    BUILDKIT   PLATFORMS
-buildkit-0          remote
- \_ buildkit-0      \_ kube-pod://buildkit-0?namespace=buildkit       running   v0.29.0    linux/amd64* (+2), linux/arm64, linux/arm (+2), linux/ppc64le, (6 more)
- buildkit-1         remote
- \_ buildkit-1      \_ kube-pod://buildkit-1?namespace=buildkit       running   v0.29.0    linux/amd64* (+2), linux/arm64, linux/arm (+2), linux/ppc64le, (6 more)
- ...
-```
-
-You should also be able to set an active builder:
-
-```
-$ docker buildx use buildkit-0
-$ docker buildx ls
+$ just builders info
 NAME/NODE           DRIVER/ENDPOINT                                   STATUS    BUILDKIT   PLATFORMS
 buildkit-0*         remote
- \_ buildkit-0      \_ kube-pod://buildkit-0?namespace=buildkit       running   v0.29.0    linux/amd64* (+2), linux/arm64, linux/arm (+2), linux/ppc64le, (6 more)
- ...
+ \_ buildkit-0       \_ kube-pod://buildkit-ss-0?namespace=buildkit   running   v0.29.0    linux/amd64 (+2), linux/arm64, linux/arm (+2), linux/ppc64le, (6 more)
+buildkit-1          remote
+ \_ buildkit-1       \_ kube-pod://buildkit-ss-1?namespace=buildkit   running   v0.29.0    linux/amd64 (+2), linux/arm64, linux/arm (+2), linux/ppc64le, (6 more)
+...
+```
+
+## Build
+
+Run:
+
+```
+just build soci \
+  <path to build context> -f <path to docker file> \
+  -t <full image tag> \
+  --platform <platform list> --push
+```
+
+for example:
+
+```
+just build soci \
+  . \
+  -f build/Dockerfile \
+  -t ghcr.io/maratoid/containerd-soci-builder:0.24.0 \
+  --platform linux/amd64,linux/arm64 --push
 ```

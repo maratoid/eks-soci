@@ -1,39 +1,36 @@
-# deploy buildkit help page
+# builders number help page
 
 # NAME
 
-deploy buildkit
+builders number
 
 # DESCRIPTION
 
-TODO: Add description here
+Returns number of remote buildkit builders
 
 # EXAMPLE
 
-```zsh
-just deploy buildkit ...
-Fill me out!
+```bash
+just builders number
 ```
 
 # PARAMETERS
 
-
 None
-
 
 # FILES
 
-TODO: related file locations or 'None'!
+None
 
 # Environment variables
 
-TODO: related environment variables or 'None'!
+## JUST_BUILDER_BASE_NAME
 
-# SEE ALSO
+Base name for buildx builders, `buildkit`
 
-```zsh
-TODO: related commands of note
-```
+## JUST_BUILDER_NAMESPACE
+
+Namespace for buildkit manifests, `buildkit`
 
 # AUTHOR
 

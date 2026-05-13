@@ -1,39 +1,36 @@
-# deploy buildkit help page
+# builders setup help page
 
 # NAME
 
-deploy buildkit
+builders setup
 
 # DESCRIPTION
 
-TODO: Add description here
+Sets up local configuration for remote buildkit builders
 
 # EXAMPLE
 
-```zsh
-just deploy buildkit ...
-Fill me out!
+```bash
+just builders setup
 ```
 
 # PARAMETERS
 
-
 None
-
 
 # FILES
 
-TODO: related file locations or 'None'!
+None
 
 # Environment variables
 
-TODO: related environment variables or 'None'!
+## JUST_BUILDER_BASE_NAME
 
-# SEE ALSO
+Base name for buildx builders, `buildkit`
 
-```zsh
-TODO: related commands of note
-```
+## JUST_BUILDER_NAMESPACE
+
+Namespace for buildkit manifests, `buildkit`
 
 # AUTHOR
 

@@ -1,25 +1,23 @@
-# deploy buildkit help page
+# builders use help page
 
 # NAME
 
-deploy buildkit
+builders use `builder number`
 
 # DESCRIPTION
 
-TODO: Add description here
+Set current remote builder to be used
 
 # EXAMPLE
 
-```zsh
-just deploy buildkit ...
-Fill me out!
+```bash
+just builders use 0
+just builders use 1
 ```
 
 # PARAMETERS
 
-
 None
-
 
 # FILES
 
@@ -27,13 +25,13 @@ TODO: related file locations or 'None'!
 
 # Environment variables
 
-TODO: related environment variables or 'None'!
+## JUST_BUILDER_BASE_NAME
 
-# SEE ALSO
+Base name for buildx builders, `buildkit`
 
-```zsh
-TODO: related commands of note
-```
+## JUST_BUILDER_NAMESPACE
+
+Namespace for buildkit manifests, `buildkit`
 
 # AUTHOR
 

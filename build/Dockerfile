@@ -133,8 +133,8 @@ if ! nerdctl --namespace ${2} image inspect --all-platforms ${1} > /dev/null 2>&
 fi
 
 
-nerdctl --namespace ${2} image convert --soci --all-platforms ${1} ${1}
-nerdctl --namespace ${2} push --all-platforms ${1}
+nerdctl --namespace ${2} image convert --soci --all-platforms ${1} ${1}-soci
+nerdctl --namespace ${2} push --all-platforms ${1}-soci
 EOF
 RUN chmod +x /soci.sh 
 

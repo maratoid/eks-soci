@@ -1,39 +1,37 @@
-# tf create help page
+# cluster create help page
 
 # NAME
 
-tf create
+cluster create `[terraform/tofu apply parameters ...]`
 
 # DESCRIPTION
 
-TODO: Add description here
+Create multipass-based kubernetes cluster.
 
 # EXAMPLE
 
-```zsh
-just tf create ...
-Fill me out!
+```bash
+TF_VAR_worker_count=5 just cluster create -auto-approve
 ```
 
 # PARAMETERS
 
-
-None
-
+See `tofu apply --help` and `terraform apply --help`
 
 # FILES
 
-TODO: related file locations or 'None'!
+Terraform/OpenTofu files located at `terraform/`
 
 # Environment variables
 
-TODO: related environment variables or 'None'!
+## JUST_TF_BINARY
 
-# SEE ALSO
+Terraform binary to use. `tofu`
 
-```zsh
-TODO: related commands of note
-```
+## terraform
+
+See https://developer.hashicorp.com/terraform/cli/config/environment-variables
+
 
 # AUTHOR
 

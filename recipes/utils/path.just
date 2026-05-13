@@ -18,7 +18,7 @@ _relative_paths relative_to +paths:
     relative_paths=()
 
     for path in "${paths[@]}"; do
-        relative_paths+=($(realpath --relative-to={{ relative_to }} ${path}))
+        relative_paths+=($(coreutils realpath --relative-to={{ relative_to }} ${path}))
     done
 
     echo -n "${relative_paths[@]}"
